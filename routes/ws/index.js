@@ -1,23 +1,81 @@
 import { WebSocketServer } from 'ws';
+import { UserRole } from '../user/user-role.enum.js';
+import { UserService } from '../../services/user.service.js';
+import { ChatService } from '../../services/chat.service.js';
+import { TokenService } from '../../services/token.service.js';
+
+import http from 'http';
 
 const clients = {};
 
 export default async (fastify, opts) => {
-  const wss = new WebSocketServer({ port: 3001 });
+  const tokenService = new TokenService(fastify.jwt);
+  const userService = new UserService();
+  const chatService = new ChatService();
 
-  let id = 1;
+  const server = http.createServer();
 
-  wss.on('connection', (ws) => {
-    clients[id] = ws;
+  const wss = new WebSocketServer({
+    noServer: true,
+  });
 
-    id++;
+  server.on('upgrade', async function upgrade(request, socket, head) {
+    let args = [];
 
-    ws.on('message', (data) => {
-      const dataJSON = JSON.parse(data);
+    try {
+      const token = request.url.split('/')[1].split('=')[1];
+      const data = tokenService.validateToken(token, 'access');
 
-      clients[dataJSON.id].send(
-        JSON.stringify({ message: dataJSON.message, from: ws.chatId }),
-      );
+      if (!data) {
+        throw ApiError.Unauthorized();
+      }
+
+      const user = await userService.getOne({ id: data.id });
+
+      if (!user) {
+        throw ApiError.Unauthorized('User not exist.');
+      }
+
+      args.push(user);
+    } catch (e) {
+      socket.destroy();
+    }
+
+    wss.handleUpgrade(request, socket, head, function done(ws) {
+      wss.emit('connection', ws, request, ...args);
     });
   });
+
+  wss.on('connection', (ws, req, ...args) => {
+    ws.user = args[0];
+    clients[args[0].id] = ws;
+
+    ws.on('message', async (data) => {
+      const { id, role } = ws.user;
+
+      const authorId = id;
+      const authorField = role === UserRole.User ? 'clientId' : 'lawyerId';
+
+      const dataJSON = await JSON.parse(data);
+
+      const clientId = role === UserRole.User ? id : dataJSON.id;
+      const lawyerId = role === UserRole.Lawyer ? id : dataJSON.id;
+
+      await chatService.createMessage({
+        clientId,
+        lawyerId,
+        authorId,
+        authorField,
+        text: dataJSON.text,
+      });
+
+      if (clients[dataJSON.id]) {
+        clients[dataJSON.id].send(
+          JSON.stringify({ text: dataJSON.text, authorId }),
+        );
+      }
+    });
+  });
+
+  server.listen(3001);
 };
