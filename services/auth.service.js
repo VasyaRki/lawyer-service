@@ -36,7 +36,7 @@ export class AuthService {
 
     const user = await this.userService.create({ ...payload, hashPassword });
 
-    return this.tokenService.generateTokens({ id: user.id });
+    return this.tokenService.generateTokens({ id: user.id, role: user.role });
   }
 
   async signIn(definition) {
@@ -54,10 +54,10 @@ export class AuthService {
       throw ApiError.BadRequest('Wrong credentials.');
     }
 
-    return this.tokenService.generateTokens({ id: user.id });
+    return this.tokenService.generateTokens({ id: user.id, role: user.role });
   }
 
   async refresh(user) {
-    return this.tokenService.generateTokens({ id: user.id });
+    return this.tokenService.generateTokens({ id: user.id, role: user.role });
   }
 }
