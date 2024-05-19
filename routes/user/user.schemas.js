@@ -16,6 +16,8 @@ const user = {
   role: typeUserRole,
   avatar: typeString,
   created_at: typeString,
+  averageMark: typeNumber,
+  hourly_rate: typeNumber,
 };
 
 const lawyer = {
