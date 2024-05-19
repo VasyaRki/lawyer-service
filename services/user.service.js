@@ -19,6 +19,7 @@ export class UserService extends EntityService {
       'lastName',
       'firstName',
       'middleName',
+      'lawyer.hourly_rate',
       User.raw('COALESCE(AVG(review.mark), 0) AS "averageMark"'),
     );
 
@@ -41,7 +42,7 @@ export class UserService extends EntityService {
     const order = filter.order || 'ASC';
     const orderField = filter.orderField;
 
-    query.groupBy('public.user.id', 'lawyer.userId');
+    query.groupBy('public.user.id', 'lawyer.userId', 'lawyer.hourly_rate');
 
     if (order && orderField) {
       query.orderBy(orderField, order);
