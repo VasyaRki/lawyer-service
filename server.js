@@ -1,11 +1,10 @@
-"use strict";
+'use strict';
 
-import {} from "dotenv/config";
-import Fastify from "fastify";
-import app from "./app.js";
-import { PORT, HOST } from "./environment.js";
-import { ApiError } from "./exceptions.js";
-
+import {} from 'dotenv/config';
+import Fastify from 'fastify';
+import app from './app.js';
+import { PORT, HOST } from './environment.js';
+import { ApiError } from './exceptions.js';
 
 const server = Fastify({
   logger: false,
@@ -22,7 +21,9 @@ server.setErrorHandler(function (error, request, reply) {
       .send({ status: error.statusCode, message: error.message });
   }
 
-  reply.status(500).send({ status: 500, message: "Server error" });
+  console.log({ error });
+
+  reply.status(500).send({ status: 500, message: 'Server error' });
 });
 
 server.listen({ port: PORT, host: HOST }, (err) => {
