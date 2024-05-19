@@ -9,7 +9,7 @@ export default async (fastify, opts) => {
   });
 
   fastify.get('/lawyer/:id', Schemas.getLawyer, async (request, reply) => {
-    return service.getOne(request.query, ['lawyer']);
+    return service.getOne(request.params, ['lawyer']);
   });
 
   fastify.patch(

@@ -68,10 +68,21 @@ export const getLawyer = {
         type: 'object',
         properties: {
           ...user,
-          lawyer: {type: 'object', properties: lawyer},
+          lawyer: {
+            oneOf: [
+              {
+                type: 'object',
+                properties: lawyer
+              },
+              {
+                type: 'null'
+              }
+            ]
+          },
         },
       },
     },
+    
   },
 };
 
