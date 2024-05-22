@@ -16,6 +16,8 @@ const user = {
   role: typeUserRole,
   avatar: typeString,
   created_at: typeString,
+  averageMark: typeNumber,
+  hourly_rate: typeNumber,
 };
 
 const lawyer = {
@@ -66,10 +68,21 @@ export const getLawyer = {
         type: 'object',
         properties: {
           ...user,
-          lawyer: {type: 'object', properties: lawyer},
+          lawyer: {
+            oneOf: [
+              {
+                type: 'object',
+                properties: lawyer
+              },
+              {
+                type: 'null'
+              }
+            ]
+          },
         },
       },
     },
+    
   },
 };
 

@@ -1,10 +1,22 @@
+
+import { UserRole } from '../user/user-role.enum.js';
 import { typeNumber, typeString } from '../../common/schema.types.js';
+
+const typeUserRole = {
+  type: 'string',
+  enum: [UserRole.Admin, UserRole.Lawyer, UserRole.User],
+};
 
 const user = {
   id: typeNumber,
   email: typeString,
-  username: typeString,
+  phone: typeString,
+  firstName: typeString,
+  lastName: typeString,
+  middleName: typeString,
+  role: typeUserRole,
   avatar: typeString,
+  created_at: typeString,
 };
 
 const tokens = {
