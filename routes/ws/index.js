@@ -58,8 +58,8 @@ export default async (fastify, opts) => {
 
       const dataJSON = await JSON.parse(data);
 
-      const clientId = role === UserRole.User ? id : dataJSON.id;
-      const lawyerId = role === UserRole.Lawyer ? id : dataJSON.id;
+      const clientId = role === UserRole.User ? id : dataJSON.authorId;
+      const lawyerId = role === UserRole.Lawyer ? id : dataJSON.authorId;
 
       await chatService.createMessage({
         clientId,
@@ -69,8 +69,8 @@ export default async (fastify, opts) => {
         text: dataJSON.text,
       });
 
-      if (clients[dataJSON.id]) {
-        clients[dataJSON.id].send(
+      if (clients[dataJSON.authorId]) {
+        clients[dataJSON.authorId].send(
           JSON.stringify({ text: dataJSON.text, authorId }),
         );
       }
